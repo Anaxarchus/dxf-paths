@@ -181,6 +181,33 @@ func (p *Path) GetDistance(fromIndex, toIndex int, direction Direction) float64 
 	return dist
 }
 
+func (p *Path) WalkToEnd(start mathgd.Vector2, direction Direction) *Snippet {
+	indices, end := p.walkToEnd(start, direction)
+	return &Snippet{
+		Indices: indices,
+		Start:   start,
+		End:     end,
+		Path:    p,
+	}
+}
+
+func (p *Path) walkToEnd(start mathgd.Vector2, direction Direction) ([]int, mathgd.Vector2) {
+	if len(p.Points) < 2 {
+		return nil, mathgd.Vector2{}
+	}
+
+	var indices []int
+	_, a, b := p.GetNearestPoint(start)
+	end := start
+	if p.Closed {
+		indices, _ = p.walkToIndex(b, a, direction)
+	} else {
+		indices, _ = p.walkToIndex(b, len(p.Points)-1, direction)
+		end = p.Points[len(p.Points)-1]
+	}
+	return indices, end
+}
+
 func (p *Path) WalkToIndex(fromIndex, toIndex int, direction Direction) *Snippet {
 	indices, _ := p.walkToIndex(fromIndex, toIndex, direction)
 	return &Snippet{
