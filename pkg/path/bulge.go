@@ -3,7 +3,8 @@ package paths
 import (
 	"math"
 
-	"github.com/Anaxarchus/gdscript-libs/pkg/mathgd"
+	"github.com/Anaxarchus/zero-g/pkg/arc"
+	"github.com/Anaxarchus/zero-gdscript/pkg/vector2"
 )
 
 type BulgeVector interface {
@@ -13,15 +14,15 @@ type BulgeVector interface {
 }
 
 type VectorB struct {
-	mathgd.Vector2
+	vector2.Vector2
 	B float64
 }
 
-func (vb VectorB) GetArcTo(to VectorB) *Arc {
-	return NewArc(bulgeToArc(to.Vector2, vb.Vector2, vb.B))
+func (vb VectorB) GetArcTo(to VectorB) *arc.Arc {
+	return arc.New(bulgeToArc(to.Vector2, vb.Vector2, vb.B))
 }
 
-func bulgeToArc(p1, p2 mathgd.Vector2, bulge float64) (mathgd.Vector2, float64, float64, float64) {
+func bulgeToArc(p1, p2 vector2.Vector2, bulge float64) (vector2.Vector2, float64, float64, float64) {
 	// Calculate the distance between the points
 	distance := p1.DistanceTo(p2)
 
@@ -37,7 +38,7 @@ func bulgeToArc(p1, p2 mathgd.Vector2, bulge float64) (mathgd.Vector2, float64, 
 	theta := angleP1P2 - (math.Pi/2 - 2*math.Atan(b))
 	cX := p1.X + (r * math.Cos(theta))
 	cY := p1.Y + (r * math.Sin(theta))
-	center := mathgd.NewVector2(cX, cY)
+	center := vector2.New(cX, cY)
 
 	// Calculate the start and end angles
 	var startAngle, endAngle float64
