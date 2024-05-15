@@ -6,16 +6,15 @@ import (
 	"github.com/Anaxarchus/gdscript-libs/pkg/mathgd"
 )
 
+type BulgeVector interface {
+	GetX() float64
+	GetY() float64
+	GetBulge() float64
+}
+
 type VectorB struct {
 	mathgd.Vector2
 	B float64
-}
-
-func NewVectorB(x, y, bulge float64) VectorB {
-	return VectorB{
-		Vector2: mathgd.Vector2{X: x, Y: y},
-		B:       bulge,
-	}
 }
 
 func (vb VectorB) GetArcTo(to VectorB) *Arc {

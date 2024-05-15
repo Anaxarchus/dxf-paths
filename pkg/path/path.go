@@ -1,7 +1,6 @@
 package paths
 
 import (
-	"fmt"
 	"math"
 	"slices"
 
@@ -9,18 +8,24 @@ import (
 )
 
 type Path struct {
-	Closed bool
-	Points []mathgd.Vector2
+	Closed   bool
+	Reversed bool
+	Points   []mathgd.Vector2
 }
 
 type Direction int
 
 const (
-	DirectionBackward = iota
+	DirectionBackward Direction = iota
 	DirectionForward
 )
 
-func NewPathFromBulge(points []VectorB, closed bool, maxInterval float64) *Path {
+func NewPathFromBulge(bulgePoints []BulgeVector, closed bool, maxInterval float64) *Path {
+	points := []VectorB{}
+	for i := range points {
+		points = append(points, VectorB{Vector2: mathgd.NewVector2(bulgePoints[i].GetX(), bulgePoints[i].GetY()), B: bulgePoints[i].GetBulge()})
+	}
+
 	// Check if the first and the last points are the same
 	if points[0].IsEqualApprox(points[len(points)-1].Vector2) {
 		// Remove the last point by slicing up to the second-to-last element
@@ -33,7 +38,6 @@ func NewPathFromBulge(points []VectorB, closed bool, maxInterval float64) *Path 
 		nxt := mathgd.Wrapi(i+1, 0, len(points)-1)
 		if points[i].B > 0 {
 			arc := points[i].GetArcTo(points[nxt])
-			fmt.Println("Arc: ", arc)
 			pts = append(pts, arc.Discretize(maxInterval)...)
 		} else {
 			pts = append(pts, points[i].Vector2)
