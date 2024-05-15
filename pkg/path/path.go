@@ -176,12 +176,49 @@ func (p *Path) Offset(delta float64) error {
 	return nil
 }
 
+func (p *Path) GetDistance(fromIndex, toIndex int, direction Direction) float64 {
+	_, dist := p.walkToIndex(fromIndex, toIndex, direction)
+	return dist
+}
+
+func (p *Path) WalkToIndex(fromIndex, toIndex int, direction Direction) *Snippet {
+	indices, _ := p.walkToIndex(fromIndex, toIndex, direction)
+	return &Snippet{
+		Indices: indices,
+		Start:   p.Points[indices[0]],
+		End:     p.Points[indices[len(indices)-1]],
+		Path:    p,
+	}
+}
+
+func (p *Path) walkToIndex(fromIndex, toIndex int, direction Direction) ([]int, float64) {
+	if len(p.Points) < 2 {
+		return nil, 0.0
+	}
+
+	indices := []int{fromIndex}
+	currentIdx := fromIndex
+	distance := 0.0
+
+	for currentIdx != toIndex {
+		nextIdx := p.Next(currentIdx, direction)
+		if !p.Closed && (nextIdx < 0 || nextIdx > len(p.Points)-1) {
+			break
+		}
+		indices = append(indices, currentIdx)
+		distance += p.Points[currentIdx].DistanceTo(p.Points[nextIdx])
+	}
+
+	return indices, distance
+}
+
 func (p *Path) Walk(start mathgd.Vector2, distance float64, direction Direction) *Snippet {
 	indices, end := p.walk(start, distance, direction)
 	return &Snippet{
 		Indices: indices,
 		Start:   start,
 		End:     end,
+		Path:    p,
 	}
 }
 
