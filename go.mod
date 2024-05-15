@@ -1,4 +1,4 @@
-module github.com/Anaxarchus/path-lib
+module github.com/Anaxarchus/paths-lib
 
 go 1.21.4
 
