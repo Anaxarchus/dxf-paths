@@ -63,7 +63,6 @@ func (p *Path) GetArcSnippets() []*ArcSnippet {
 	arcs := []*ArcSnippet{}
 	pLen := len(p.Points)
 	if pLen < MinArcPoints {
-		fmt.Println("not enough points in path")
 		return arcs
 	}
 
@@ -73,45 +72,32 @@ func (p *Path) GetArcSnippets() []*ArcSnippet {
 	var lastIdx int
 
 	for i := 0; i < pLen; i++ {
-		str := fmt.Sprintf("Iteration %d: ", i)
 		currentIdx := i
 		prevIdx := mathgd.Wrapi(i-1, 0, pLen)
 		nextIdx := mathgd.Wrapi(i+1, 0, pLen)
 
-		a1 := p.Points[currentIdx].AngleToPoint(p.Points[nextIdx])
-		a2 := p.Points[currentIdx].AngleToPoint(p.Points[prevIdx])
-		currentAngle := a2 - a1
+		currentAngle := getAngle(p.Points[prevIdx], p.Points[currentIdx], p.Points[nextIdx])
 
-		dif := math.Abs(currentAngle - lastAngle)
-		str += fmt.Sprintf("angle: %f, ", currentAngle)
-		//fmt.Println("distance between: ", p.Points[i].DistanceTo(p.Points[nextIdx]))
-
-		if dif > 0.0001 {
-			str += fmt.Sprintf("Current angle wasn't equal to the last, diff: %f, ", dif)
+		if math.Abs(currentAngle-lastAngle) > 0.0001 {
 			if pointCount >= MinArcPoints-2 {
 				arcs = append(arcs, NewArcSnippet(firstIdx, lastIdx, p))
 			}
-			str += "Not enough points for snippet."
 			firstIdx = currentIdx
 			pointCount = 0
 		}
 
 		if currentAngle > MaxArcAngle {
-			fmt.Println("current angle greater then max angle")
 			if pointCount >= MinArcPoints-2 {
 				arcs = append(arcs, NewArcSnippet(firstIdx, lastIdx, p))
 			}
-			fmt.Println("Not enough points to make snippet!")
 			firstIdx = currentIdx
 			pointCount = 0
 		}
 
 		if math.Abs(currentAngle) < MinArcAngle {
-			fmt.Println("current angle less then min angle")
 			if pointCount >= MinArcPoints-2 {
 				arcs = append(arcs, NewArcSnippet(firstIdx, lastIdx, p))
 			}
-			fmt.Println("Not enough points to make snippet!")
 			firstIdx = currentIdx
 			pointCount = 0
 		}
@@ -120,8 +106,6 @@ func (p *Path) GetArcSnippets() []*ArcSnippet {
 
 		lastIdx = currentIdx
 		lastAngle = currentAngle
-
-		fmt.Println(str)
 	}
 
 	// Check for the last segment
@@ -130,6 +114,12 @@ func (p *Path) GetArcSnippets() []*ArcSnippet {
 	}
 
 	return arcs
+}
+
+func getAngle(a, b, c mathgd.Vector2) float64 {
+	ba := b.DirectionTo(a)
+	bc := b.DirectionTo(c)
+	return ba.Angle() - bc.Angle()
 }
 
 func (p *Path) AddArc(arc *Arc, maxInterval float64) {

@@ -1,4 +1,4 @@
-module dxf-paths
+module github.com/Anaxarchus/path-lib
 
 go 1.21.4
 

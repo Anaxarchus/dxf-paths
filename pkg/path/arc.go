@@ -151,11 +151,22 @@ func fitArc(arcPoints []mathgd.Vector2) (mathgd.Vector2, float64) {
 	if product <= 0 {
 		return np, 0 // If product is non-positive, radius calculation fails
 	}
-	rad := (a * b * c) / math.Sqrt(product)
 
-	// The origin of the circle is calculated by extending the vector from np to mp
-	// by the calculated radius
-	center := np.DirectionTo(mp).Mulf(rad)
+	abc := a * b * c
+
+	rad := abc / math.Sqrt(product)
+
+	// Calculate the center of the circumscribed circle
+	A := e1.Sub(np)
+	B := e2.Sub(np)
+	//C := e1.Sub(e2)
+	D := A.Dot(e1.Add(np).Divf(2.0))
+	E := B.Dot(e2.Add(np).Divf(2.0))
+
+	center := mathgd.Vector2{
+		X: (D*B.Y - E*A.Y) / (A.X*B.Y - B.X*A.Y),
+		Y: (A.X*E - B.X*D) / (A.X*B.Y - B.X*A.Y),
+	}
 
 	return center, rad
 }
