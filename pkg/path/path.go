@@ -1,6 +1,7 @@
 package paths
 
 import (
+	"errors"
 	"math"
 	"slices"
 
@@ -74,8 +75,12 @@ func (p *Path) GetNearestSegment(fromPosition vector2.Vector2) (int, int) {
 	return nSeg[0], nSeg[1]
 }
 
-func (p *Path) Offset(delta float64) error {
-	geometry2d.OffsetPolygon(p.Points, delta, geometry2d.JoinTypeMiter)
+func (p *Path) Offset(delta float64, allowInversion bool) error {
+	pts := geometry2d.OffsetPolygon(p.Points, delta, geometry2d.JoinTypeMiter)[0]
+	if geometry2d.IsPolygonClockwise(pts) && !allowInversion {
+		return errors.New("path inverted")
+	}
+	p.Points = pts
 	return nil
 }
 
